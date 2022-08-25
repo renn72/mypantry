@@ -6,10 +6,15 @@ module.exports = {
   extends: [
     'next/core-web-vitals',
   ],
-  plugins: ['react'],
+  plugins: [
+    'react',
+    'plugin:prettier/recommended', // Enables eslint-plugin-prettier and eslint-config-prettier. This will display prettier errors as ESLint errors. Make sure this is always the last configuration in the extends array.
+  ],
   rules: {
     'react-hooks/exhaustive-deps': ['off'],
-    'indent': ['warn', 2],
+    'indent': ['warn', 2, {
+      ignoredNodes: ['TemplateLiteral'],
+    }],
     'object-property-newline': ['error'],
     'comma-dangle': ['warn', 'always-multiline'],
     'react/jsx-first-prop-new-line': [
