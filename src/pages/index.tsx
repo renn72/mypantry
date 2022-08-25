@@ -1,6 +1,8 @@
 import Head from 'next/head';
 import Link from 'next/link';
-import { Button, Modal, Container } from '@mantine/core';
+import { Button, Modal, Container, TextInput, Checkbox, Group, Box } from '@mantine/core';
+import { useForm } from '@mantine/form';
+
 import { IconPencilPlus } from '@tabler/icons';
 import { useSession } from 'next-auth/react';
 
@@ -15,7 +17,16 @@ const Home: NextPage = () => {
   const [productModelOpen, setProductModelOpen] = useState(false)
 
   const { data: products } = useQuery(['products.list-your-products']);
-//  console.log('products?', products);
+  //  console.log('products?', products);
+const form = useForm({
+    initialValues: {
+      name: '',
+      price: '',
+      size: '',
+      unit: '',
+      description: ''
+    },
+  });
 
   return (
     <>
@@ -42,13 +53,45 @@ const Home: NextPage = () => {
                 >
                 </Button>
                 <Modal opened={productModelOpen} onClose={() => setProductModelOpen(false)} title="More Products">
-                 stuff
+                <Box sx={{ maxWidth: 300 }} mx="auto">
+                  <form onSubmit={form.onSubmit((values) => console.log(values))}>
+                    <TextInput
+                      withAsterisk
+                      label="Name"
+                      {...form.getInputProps('name')}
+                    />
+                    <TextInput
+                      withAsterisk
+                      label="Price"
+                      {...form.getInputProps('price')}
+                    />
+                    <TextInput
+                      withAsterisk
+                      label="Size"
+                      {...form.getInputProps('size')}
+                    />
+                    <TextInput
+                      withAsterisk
+                      label="Unit"
+                      {...form.getInputProps('unit')}
+                    />
+                    <TextInput
+                      withAsterisk
+                      label="Description"
+                      {...form.getInputProps('description')}
+                    />
+
+                    <Group position="right" mt="md">
+                      <Button type="submit">Submit</Button>
+                    </Group>
+                  </form>
+                </Box>
               </Modal>
             </div>
           ) : (
-            <div>
+          <div>
                 login pls
-            </div>
+              </div>
           )}
         </Container>
       </main>
