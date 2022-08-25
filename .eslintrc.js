@@ -9,6 +9,7 @@ module.exports = {
   plugins: ['react'],
   rules: {
     'react-hooks/exhaustive-deps': ['off'],
+    'indent': ['warn', 2],
     'object-property-newline': ['error'],
     'comma-dangle': ['warn', 'always-multiline'],
     'react/jsx-first-prop-new-line': [
