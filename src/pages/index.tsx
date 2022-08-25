@@ -18,7 +18,7 @@ const Home: NextPage = () => {
   return (
     <>
       <Head>
-        <title>T3 Blog - Home</title>
+        <title>mypantry - Home</title>
       </Head>
 
       <main className="container mx-auto">

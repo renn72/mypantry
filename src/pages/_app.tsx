@@ -22,8 +22,8 @@ const MyApp: AppType = ({
   Component,
   pageProps: { session, ...pageProps },
 }: AppPropsType) => {
-  const title = 'T3 Blog';
-  const description = 'A full stack blog web app created with T3 Stack';
+  const title = 'mypantry';
+  const description = 'Food costing app';
   const imageMetaURL = '/favicon.ico';
 
   const myCache = createEmotionCache({

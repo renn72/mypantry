@@ -18,7 +18,19 @@ model Post {
   content   String
   image     String
   createdAt DateTime @default(now())
-  createdBy User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdBy User     @relation(fields: [userId], references: [id])
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  description String?  @db.Text
+  price       Int
+  size        Int
+  unit        String
+  userId      String
+  createdAt   DateTime @default(now())
+  createdBy   User     @relation(fields: [userId], references: [id])
 }
 
 model Account {
@@ -56,6 +68,7 @@ model User {
   accounts      Account[]
   sessions      Session[]
   Post          Post[]
+  Product       Product[]
 }
 
 model VerificationToken {
