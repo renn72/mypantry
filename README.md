@@ -1,3 +1,3 @@
-# T3 Blog
+# mypantry
 
-This is full stack blog app.
+this is mypantry
