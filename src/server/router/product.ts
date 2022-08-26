@@ -1,7 +1,6 @@
-import { createRouter } from './context';
-import { z } from 'zod';
+import { createRouter } from "./context";
+import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-
 
 export const createProductSchema = z.object({
   name: z.string(),
@@ -12,7 +11,7 @@ export const createProductSchema = z.object({
 });
 
 export const productRouter = createRouter()
-.middleware(async ({ ctx, next }) => {
+  .middleware(async ({ ctx, next }) => {
     if (!ctx.session?.user) {
       throw new TRPCError({
         code: "UNAUTHORIZED",
@@ -20,39 +19,38 @@ export const productRouter = createRouter()
     }
     return next();
   })
-  .query('list-your-products', {
-    async resolve({ ctx  }) {
-      const userId = ctx.session?.user?.id
+  .query("list-your-products", {
+    async resolve({ ctx }) {
+      const userId = ctx.session?.user?.id;
       const products = await ctx.prisma.product.findMany({
-        where: { userId : userId}
-    });
-      
-      return products
+        where: { userId: userId },
+      });
+
+      return products;
     },
-  }).mutation('create-product', {
+  })
+  .mutation("create-product", {
     input: createProductSchema,
-    async resolve ({ctx, input}) {
-      const {name, price, size, unit, description} = input
-      const user = ctx.session?.user
-    
+    async resolve({ ctx, input }) {
+      const { name, price, size, unit, description } = input;
+      const user = ctx.session?.user;
 
       try {
-      if (!user) return
-      return ctx.prisma.product.create({
-        data: {
-          name,
-          price,
-          size,
-          unit,
-          description,
-          userId: user?.id 
-        }
-      })
-
-    } catch (e) {
-      throw new TRPCError({
-        code: "BAD_REQUEST",
-      })
-    }
-  }
-});
+        if (!user) return;
+        return ctx.prisma.product.create({
+          data: {
+            name,
+            price,
+            size,
+            unit,
+            description,
+            userId: user?.id,
+          },
+        });
+      } catch (e) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+        });
+      }
+    },
+  });
