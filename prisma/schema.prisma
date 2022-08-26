@@ -22,15 +22,41 @@ model Post {
 }
 
 model Product {
-  id          String   @id @default(cuid())
-  name        String
-  description String?  @db.Text
-  price       Int
-  size        Int
-  unit        String
-  userId      String
-  createdAt   DateTime @default(now())
-  createdBy   User     @relation(fields: [userId], references: [id])
+  id                String              @id @default(cuid())
+  name              String
+  description       String?             @db.Text
+  price             Int
+  size              Float
+  unit              String
+  userId            String
+  createdAt         DateTime            @default(now())
+  createdBy         User                @relation(fields: [userId], references: [id])
+  Recipe_Ingredient Recipe_Ingredient[]
+}
+
+model Recipe {
+  id                String              @id @default(cuid())
+  name              String
+  description       String?             @db.Text
+  price             Int
+  category          String?
+  prepTime          Int?
+  cookTime          Int?
+  userId            String
+  createdAt         DateTime            @default(now())
+  createdBy         User                @relation(fields: [userId], references: [id])
+  Recipe_Ingredient Recipe_Ingredient[]
+}
+
+model Recipe_Ingredient {
+  id           String @id @default(cuid())
+  recipeId     String
+  ingredientId String
+
+  ingredientQuantity Float
+
+  ingredient Product @relation(fields: [ingredientId], references: [id])
+  recipe     Recipe  @relation(fields: [recipeId], references: [id])
 }
 
 model Account {
@@ -69,6 +95,7 @@ model User {
   sessions      Session[]
   Post          Post[]
   Product       Product[]
+  Recipe        Recipe[]
 }
 
 model VerificationToken {

@@ -4,12 +4,11 @@ import { TRPCError } from "@trpc/server";
 
 
 export const createProductSchema = z.object({
-  name: z.string()
-  ,description: z.string()
-  ,price: z.number()
-  ,size: z.number()
-  ,unit: z.string(),
-
+  name: z.string(),
+  description: z.string(),
+  price: z.number(),
+  size: z.number(),
+  unit: z.string(),
 });
 
 export const productRouter = createRouter()
@@ -30,4 +29,30 @@ export const productRouter = createRouter()
       
       return products
     },
-  });
+  }).mutation('create-product', {
+    input: createProductSchema,
+    async resolve ({ctx, input}) {
+      const {name, price, size, unit, description} = input
+      const user = ctx.session?.user
+    
+
+      try {
+      if (!user) return
+      return ctx.prisma.product.create({
+        data: {
+          name,
+          price,
+          size,
+          unit,
+          description,
+          userId: user?.id 
+        }
+      })
+
+    } catch (e) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+      })
+    }
+  }
+});

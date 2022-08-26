@@ -1,6 +1,6 @@
 import Head from 'next/head';
 import Link from 'next/link';
-import { Button, Modal, Container, TextInput, Checkbox, Group, Box } from '@mantine/core';
+import { Button, Modal, Container, TextInput, Group, Box, NumberInput, Textarea, Select } from '@mantine/core';
 import { useForm } from '@mantine/form';
 
 import { IconPencilPlus } from '@tabler/icons';
@@ -8,25 +8,43 @@ import { useSession } from 'next-auth/react';
 
 import type { NextPage } from 'next';
 
-import { useQuery } from '../utils/trpc';
+import { useMutation, useQuery, trpc } from '../utils/trpc';
 import { useState } from 'react';
 
 const Home: NextPage = () => {
   const { data: session, status } = useSession();
+  const context = trpc.useContext();
+  const newProductMutate = useMutation('products.create-product', {
+    onSuccess() {
+      context.invalidateQueries(['products.list-your-products'])
+    }
+  })
 
   const [productModelOpen, setProductModelOpen] = useState(false)
 
   const { data: products } = useQuery(['products.list-your-products']);
   //  console.log('products?', products);
-const form = useForm({
+  const form = useForm({
     initialValues: {
       name: '',
-      price: '',
+      price: 0,
       size: '',
       unit: '',
       description: ''
     },
   });
+
+
+  /* @ts-ignore */ // has type any
+  const handleNewProductForm = (values) => {
+    values.price *= 100
+    console.log(values)
+    const response = newProductMutate.mutate(values)
+    console.log('response?', response)
+    form.reset()
+    setProductModelOpen(false)
+  }
+
 
   return (
     <>
@@ -34,8 +52,8 @@ const form = useForm({
         <title>mypantry - Home</title>
       </Head>
 
-      <main className="container mx-auto">
-        <Container className='border-gray-600 border-2 '>
+      <main className="container mx-auto flex gap-6">
+        <div className='container border-gray-600 border-2 min-w-300 max-w-md'>
           {session && session.user ? (
             <div className='flex flex-col gap-8 my-2'>
               {products?.map( p => (
@@ -53,31 +71,42 @@ const form = useForm({
                 >
                 </Button>
                 <Modal opened={productModelOpen} onClose={() => setProductModelOpen(false)} title="More Products">
-                <Box sx={{ maxWidth: 300 }} mx="auto">
-                  <form onSubmit={form.onSubmit((values) => console.log(values))}>
+                <Box sx={{ maxWidth: 300 }} mx="auto" >
+                  <form onSubmit={form.onSubmit((values) => handleNewProductForm(values))} className="flex flex-col gap-2">
                     <TextInput
                       withAsterisk
-                      label="Name"
+                      aria-label="Name"
+                      placeholder='Product Name'
                       {...form.getInputProps('name')}
                     />
-                    <TextInput
-                      withAsterisk
-                      label="Price"
+                    <NumberInput
+                      aria-label="Price"
+                      min={0.01}
+                      precision={2}
+                      placeholder='10'
+                      hideControls
                       {...form.getInputProps('price')}
                     />
-                    <TextInput
-                      withAsterisk
-                      label="Size"
+                    <div className='flex'>
+                      <NumberInput
+                        aria-label="Size"
+                        placeholder="Size"
                       {...form.getInputProps('size')}
-                    />
-                    <TextInput
+                      />
+                      <Select
+                        withAsterisk
+                        aria-label="Unit"
+                        searchable
+                        data={['millileter', 'grams', 'tons']}
+                        {...form.getInputProps('unit')}
+                      />
+                    </div>
+                    <Textarea
                       withAsterisk
-                      label="Unit"
-                      {...form.getInputProps('unit')}
-                    />
-                    <TextInput
-                      withAsterisk
-                      label="Description"
+                      aria-label="Description"
+                      placeholder="Product description"
+                      autosize
+                      minRows={2}
                       {...form.getInputProps('description')}
                     />
 
@@ -93,7 +122,10 @@ const form = useForm({
                 login pls
               </div>
           )}
-        </Container>
+        </div>
+        <div className='container border-gray-600 border-2 min-w-600'>
+
+        </div>
       </main>
     </>
   );
