@@ -1,4 +1,4 @@
-import Head from "next/head";
+import Head from 'next/head';
 import {
   Button,
   Modal,
@@ -8,41 +8,42 @@ import {
   NumberInput,
   Textarea,
   Select,
-} from "@mantine/core";
-import { useForm } from "@mantine/form";
+} from '@mantine/core';
+import { useForm } from '@mantine/form';
 
-import { IconPencilPlus } from "@tabler/icons";
-import { useSession } from "next-auth/react";
+import { IconPencilPlus } from '@tabler/icons';
+import { useSession } from 'next-auth/react';
 
-import type { NextPage } from "next";
+import type { NextPage } from 'next';
 
-import { useMutation, useQuery, trpc } from "../utils/trpc";
-import { useState } from "react";
-import { map } from "zod";
+import React from 'react';
+
+import { useMutation, useQuery, trpc } from '../utils/trpc';
+import { useState } from 'react';
 
 const Home: NextPage = () => {
   const { data: session } = useSession();
   const context = trpc.useContext();
-  const newProductMutate = useMutation("products.create-product", {
+  const newProductMutate = useMutation('products.create-product', {
     onSuccess() {
-      context.invalidateQueries(["products.list-your-products"]);
+      context.invalidateQueries(['products.list-your-products']);
     },
   });
 
   const [productModelOpen, setProductModelOpen] = useState(false);
 
-  const { data: products } = useQuery(["products.list-your-products"]);
-  const { data: recipes } = useQuery(["recipes.list-your-recipes"]);
+  const { data: products } = useQuery(['products.list-your-products']);
+  const { data: recipes } = useQuery(['recipes.list-your-recipes']);
 
-  console.log("recipes?", recipes);
+  console.log('recipes?', recipes);
 
   const form = useForm({
     initialValues: {
-      name: "",
+      name: '',
       price: 0,
-      size: "",
-      unit: "",
-      description: "",
+      size: '',
+      unit: '',
+      description: '',
     },
   });
 
@@ -50,6 +51,7 @@ const Home: NextPage = () => {
   const handleNewProductForm = (values) => {
     values.price *= 100;
     const response = newProductMutate.mutate(values);
+    console.log(response);
     form.reset();
     setProductModelOpen(false);
   };
@@ -97,7 +99,7 @@ const Home: NextPage = () => {
                       <TextInput
                         aria-label="Name"
                         placeholder="Product Name"
-                        {...form.getInputProps("name")}
+                        {...form.getInputProps('name')}
                       />
                       <NumberInput
                         aria-label="Price"
@@ -105,19 +107,19 @@ const Home: NextPage = () => {
                         precision={2}
                         placeholder="10"
                         hideControls
-                        {...form.getInputProps("price")}
+                        {...form.getInputProps('price')}
                       />
                       <div className="flex">
                         <NumberInput
                           aria-label="Size"
                           placeholder="Size"
-                          {...form.getInputProps("size")}
+                          {...form.getInputProps('size')}
                         />
                         <Select
                           aria-label="Unit"
                           searchable
-                          data={["milliliter", "grams", "tons"]}
-                          {...form.getInputProps("unit")}
+                          data={['milliliter', 'grams', 'tons']}
+                          {...form.getInputProps('unit')}
                         />
                       </div>
                       <Textarea
@@ -125,7 +127,7 @@ const Home: NextPage = () => {
                         placeholder="Product description"
                         autosize
                         minRows={2}
-                        {...form.getInputProps("description")}
+                        {...form.getInputProps('description')}
                       />
 
                       <Group position="right" mt="md">
@@ -147,7 +149,7 @@ const Home: NextPage = () => {
                     <div>name: {recipe.name}</div>
                     <div>
                       {recipe.Recipe_Ingredient.map((ingredient) => (
-                        <div>
+                        <div key={ingredient.id}>
                           <div>{ingredient.ingredient.name}</div>
                           <div>{ingredient.ingredientQuantity}</div>
                         </div>
