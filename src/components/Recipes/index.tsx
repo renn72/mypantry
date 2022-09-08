@@ -26,6 +26,12 @@ const Recipes: React.FC = () => {
             className="flex justify-between mx-20 px-4 py-2 rounded-lg bg-gray-700 hover:bg-gray-600"
           >
             <div className="capitalize">{recipe.name}</div>
+            {console.log('recipe?', recipe)}
+            <div>
+              {recipe.Recipe_Ingredient.reduce((acc, p) => {
+                return acc + p.ingredientQuantity;
+              }, 0)}
+            </div>
             <div className="flex gap-2">
               <IconX />
             </div>
