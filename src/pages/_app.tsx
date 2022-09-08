@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { withTRPC } from '@trpc/next';
 import { loggerLink } from '@trpc/client/links/loggerLink';
 import { httpBatchLink } from '@trpc/client/links/httpBatchLink';
@@ -38,47 +38,17 @@ const MyApp: AppType = ({
     <SessionProvider session={session}>
       <Head>
         <title>{title}</title>
-        <meta
-          name="description"
-          content={description}
-        />
-        <meta
-          property="og:title"
-          content={title}
-        />
-        <meta
-          property="og:description"
-          content={description}
-        />
-        <meta
-          property="og:image"
-          content={imageMetaURL}
-        />
-        <meta
-          name="twitter:image"
-          content={imageMetaURL}
-        />
-        <meta
-          name="twitter:card"
-          content="summary_large_image"
-        />
-        <meta
-          name="theme-color"
-          content="#000000"
-        />
+        <meta name="description" content={description} />
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:image" content={imageMetaURL} />
+        <meta name="twitter:image" content={imageMetaURL} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="theme-color" content="#000000" />
 
-        <link
-          rel="icon"
-          href={imageMetaURL}
-        />
-        <meta
-          name="apple-mobile-web-app-title"
-          content={title}
-        />
-        <meta
-          name="application-name"
-          content={title}
-        />
+        <link rel="icon" href={imageMetaURL} />
+        <meta name="apple-mobile-web-app-title" content={title} />
+        <meta name="application-name" content={title} />
       </Head>
       <ColorSchemeProvider
         colorScheme={colorScheme}
@@ -87,8 +57,8 @@ const MyApp: AppType = ({
         <MantineProvider
           withGlobalStyles
           withNormalizeCSS
-          theme={{ 
-            colorScheme, 
+          theme={{
+            colorScheme,
           }}
           emotionCache={myCache}
         >
