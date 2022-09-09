@@ -37,7 +37,10 @@ export const productRouter = createRouter()
         where: { userId: userId },
       });
 
-      return products;
+      return products.map((product) => {
+        product.price = product.price / 100;
+        return product;
+      });
     },
   })
   .mutation('create-product', {
@@ -78,7 +81,12 @@ export const productRouter = createRouter()
             id: id,
             userId: user.id,
           },
-          data: { description: description },
+          data: {
+            description: description,
+            price: price * 100,
+            size: size,
+            unit: unit,
+          },
         });
       } catch (e) {
         throw new TRPCError({

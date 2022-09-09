@@ -62,7 +62,6 @@ const Ingredients: React.FC = (props) => {
 
   /* @ts-ignore */ // has type any
   const handleNewProductForm = (values) => {
-    values.price *= 100;
     if (productUpdateId) {
       values.id = productUpdateId;
       console.log('values?', values);
@@ -88,6 +87,7 @@ const Ingredients: React.FC = (props) => {
               className="flex justify-between mx-20 px-4 py-2 rounded-lg bg-gray-700 hover:bg-gray-600 cursor-pointer"
               onClick={() => {
                 setProductUpdateId(p.id);
+                console.log('price', p.price);
                 form.setValues({
                   description: p.description ? p.description : '',
                   name: p.name,
