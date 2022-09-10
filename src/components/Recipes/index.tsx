@@ -104,6 +104,7 @@ const Recipes: React.FC = () => {
     return cost + ' / ' + cog.toFixed(2) + '%';
   };
 
+  // FIXME: fix any type
   /* @ts-ignore */ // has type any
   const handleNewRecipeForm = (values) => {
     form.reset();
