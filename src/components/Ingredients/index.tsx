@@ -153,7 +153,7 @@ const Ingredients: React.FC = (props) => {
               <Select
                 aria-label="Unit"
                 searchable
-                data={['each', 'milliliter', 'grams', 'tons']}
+                data={['each', 'ml', 'g']}
                 {...form.getInputProps('unit')}
               />
             </div>

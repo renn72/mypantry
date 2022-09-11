@@ -2,7 +2,13 @@ import React, { useState } from 'react';
 
 import { useQuery, trpc } from '../../utils/trpc';
 
-import { IconPencilPlus, IconX, IconTrashX } from '@tabler/icons';
+import {
+  IconPencilPlus,
+  IconX,
+  IconTrashX,
+  IconCircleMinus,
+  IconCirclePlus,
+} from '@tabler/icons';
 import {
   Button,
   Modal,
@@ -39,59 +45,71 @@ const Recipes: React.FC = () => {
         {
           name: '',
           quantity: 0,
+          cost: 0,
           key: randomId(),
         },
       ],
     },
   });
 
-  const fields = form.values.ingredients.map((item, index) => (
-    <Group
-      key={item.key}
-      spacing="sm"
-      position="apart"
-      noWrap={true}
-      className="my-4 flex"
-    >
-      <Select
-        placeholder="ingredient"
-        searchable
-        size="sm"
-        data={products ? products.map((p) => p.name) : []}
-        {...form.getInputProps(`ingredients.${index}.name`)}
-        className="shrink"
-      />
-      <Text>
-        {
-          products
-            ?.filter((p) => p.name == form?.values?.ingredients[index]?.name)
-            .map((p) => p.size + ' ' + p.unit)[0]
-        }
-      </Text>
-      <Text>
-        {'$' +
-          products
-            ?.filter((p) => p.name == form?.values?.ingredients[index]?.name)
-            .map((p) => p.price)[0]
-            ?.toFixed(2)}
-      </Text>
-      <NumberInput
-        hideControls={true}
-        min={0}
-        {...form.getInputProps(`ingredients.${index}.quantity`)}
-        className="w-10"
-      />
-      <ActionIcon
-        color="red"
-        onClick={() => form.removeListItem('ingredients', index)}
-      >
-        <IconTrashX size={16} />
-      </ActionIcon>
-    </Group>
-  ));
+  const fields = form.values.ingredients.map((item, index) => {
+    let itemSizeFormat = '';
+    let itemPriceFormat = '';
+    let itemCost = 0;
 
+    if (form?.values?.ingredients[index]?.name) {
+      const [itemSize, itemUnit]: (number | string)[] = products
+        ?.filter((p) => p.name == form?.values?.ingredients[index]?.name)
+        .map((p) => [p.size, p.unit])[0] || [0, ''];
+      if (itemSize && itemUnit)
+        itemSizeFormat = itemSize.toString() + itemUnit || '';
+      const itemPrice =
+        products
+          ?.filter((p) => p.name == form?.values?.ingredients[index]?.name)
+          .map((p) => p.price)[0]
+          ?.toFixed(2) || '';
+      itemPriceFormat = itemPrice == '' ? itemPrice : '$' + itemPrice;
+      if (itemPrice && itemSize) {
+        itemCost = (item?.quantity * +itemPrice) / +itemSize;
+        if (form.values.ingredients[index]?.cost != itemCost)
+          form.setFieldValue(`ingredients.${index}.cost`, itemCost);
+        console.log(0);
+      }
+    }
+    return (
+      <div key={item.key} className="grid grid-cols-8 gap-2 my-2 items-center">
+        <Select
+          placeholder="ingredient"
+          searchable
+          size="sm"
+          data={products ? products.map((p) => p.name) : []}
+          {...form.getInputProps(`ingredients.${index}.name`)}
+          className="col-span-2"
+        />
+        <Text>{itemSizeFormat}</Text>
+        <Text>{itemPriceFormat}</Text>
+        <NumberInput
+          hideControls={true}
+          min={0}
+          {...form.getInputProps(`ingredients.${index}.quantity`)}
+          className="col-span-2"
+        />
+        <Text align="center">{itemCost.toFixed(2)}</Text>
+        <ActionIcon
+          color="red"
+          onClick={() => form.removeListItem('ingredients', index)}
+        >
+          <IconCircleMinus size={16} />
+        </ActionIcon>
+      </div>
+    );
+  });
+
+  // FIXME: fix any type
+  /* @ts-ignore */ // has type any
   const findCogs = (recipe) => {
     if (!recipe?.Recipe_Ingredient) return;
+    /* @ts-ignore */ // has type any
     const cost = recipe.Recipe_Ingredient.reduce((acc, r) => {
       const qty = r.ingredientQuantity;
       const unitPrice = r.ingredient.price / r.ingredient.size / 100;
@@ -152,7 +170,7 @@ const Recipes: React.FC = () => {
           title="More Recipe"
           size="xl"
         >
-          <Box sx={{ maxWidth: 600 }} mx="auto">
+          <Box sx={{ maxWidth: 700 }} mx="auto">
             <form
               onSubmit={form.onSubmit((values) => handleNewRecipeForm(values))}
               className="flex flex-col gap-2"
@@ -171,42 +189,69 @@ const Recipes: React.FC = () => {
                 icon={'$'}
                 {...form.getInputProps('price')}
               />
-              <Box sx={{ maxWidth: 600 }} mx="auto" className="w-full">
+              <div className="flex flex-col w-full justify-center align-middle">
                 {fields.length > 0 ? (
-                  <Group mb="xs" className="my-2">
-                    <Text weight={500} size="sm" sx={{ flex: 1 }}>
+                  <div className="grid grid-cols-8 gap-1 my-2">
+                    <Text weight={500} className="col-span-2">
                       Name
                     </Text>
-                    <Text weight={500} size="sm" pr={90}>
-                      Size
-                    </Text>
-                    <Text weight={500} size="sm" pr={90}>
-                      Unit Cost
-                    </Text>
-                    <Text weight={500} size="sm" pr={90}>
+                    <Text weight={500}>Size</Text>
+                    <Text weight={500}>Unit Cost</Text>
+                    <Text weight={500} className="col-span-2">
                       Quantity
                     </Text>
-                  </Group>
+                    <Text weight={500} align="center">
+                      Total
+                    </Text>
+                  </div>
                 ) : (
                   <Text color="dimmed" align="center">
                     No one here...
                   </Text>
                 )}
                 {fields}
-                <Group position="center" mt="md">
-                  <Button
-                    onClick={() =>
-                      form.insertListItem('ingredients', {
-                        name: '',
-                        quantity: 0,
-                        key: randomId(),
-                      })
-                    }
-                  >
-                    Add Ingredient
-                  </Button>
-                </Group>
-              </Box>
+                <div className="grid grid-cols-8 gap-1 my-2">
+                  <Text align="center" className="col-start-7">
+                    Total
+                  </Text>
+                  <Text align="center" className="">
+                    COGS
+                  </Text>
+                </div>
+                <div className="grid grid-cols-8 gap-1">
+                  <Text className="col-start-7" align="center">
+                    {form.values.ingredients
+                      .reduce(
+                        (acc, item) => acc + (item.cost ? item.cost : 0),
+                        0
+                      )
+                      .toFixed(2)}
+                  </Text>
+                  <Text className="" align="center">
+                    {(form.values.ingredients.reduce(
+                      (acc, item) => (acc + item.cost ? item.cost : 0),
+                      0
+                    ) /
+                      form.values.price) *
+                      100 || 0}
+                    %
+                  </Text>
+                </div>
+                <ActionIcon
+                  className="self-center"
+                  color="blue"
+                  size={48}
+                  onClick={() =>
+                    form.insertListItem('ingredients', {
+                      name: '',
+                      quantity: 0,
+                      key: randomId(),
+                    })
+                  }
+                >
+                  <IconCirclePlus size={32} />
+                </ActionIcon>
+              </div>
               <Textarea
                 aria-label="Description"
                 placeholder="Recipe description"
@@ -217,6 +262,9 @@ const Recipes: React.FC = () => {
 
               <Group position="right" mt="md">
                 <Button type="submit">Submit</Button>
+                <Button variant="subtle" onClick={() => form.reset()}>
+                  Clear
+                </Button>
               </Group>
             </form>
           </Box>
