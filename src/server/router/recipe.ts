@@ -54,7 +54,7 @@ export const recipeRouter = createRouter()
       console.log(recipeProducts);
 
       try {
-        if (!user) return;
+        if (!userId) return;
         return ctx.prisma.recipe.create({
           data: {
             name: name,
