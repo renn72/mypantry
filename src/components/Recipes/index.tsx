@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import { useQuery, trpc } from '../../utils/trpc';
+import { useQuery, useMutation, trpc } from '../../utils/trpc';
 
 import {
   IconPencilPlus,
@@ -28,10 +28,16 @@ const randomId = () => {
 };
 
 const Recipes: React.FC = () => {
+  const context = trpc.useContext();
+
   const { data: recipes } = useQuery(['recipes.list-your-recipes']);
   const { data: products } = useQuery(['products.list-your-products']);
 
-  console.log('recipes>', recipes);
+  const newRecipeMutate = useMutation('recipes.create-recipe', {
+    onSuccess() {
+      context.invalidateQueries(['recipes.list-your-recipes']);
+    },
+  });
 
   const [recipeModelOpen, setRecipeModelOpen] = useState(false);
 
@@ -124,6 +130,7 @@ const Recipes: React.FC = () => {
   // FIXME: fix any type
   /* @ts-ignore */ // has type any
   const handleNewRecipeForm = (values) => {
+    newRecipeMutate.mutate(values);
     form.reset();
     setRecipeModelOpen(false);
   };
