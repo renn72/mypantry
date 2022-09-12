@@ -17,21 +17,26 @@ import React, { useState } from 'react';
 
 import { useAutoAnimate } from '@formkit/auto-animate/react';
 
+// TODO: Form validation
+
 const Ingredients: React.FC = (props) => {
   const context = trpc.useContext();
   const newProductMutate = useMutation('products.create-product', {
     onSuccess() {
       context.invalidateQueries(['products.list-your-products']);
+      context.invalidateQueries(['recipes.list-your-recipes']);
     },
   });
   const deleteProductMutate = useMutation('products.delete-product', {
     onSuccess() {
       context.invalidateQueries(['products.list-your-products']);
+      context.invalidateQueries(['recipes.list-your-recipes']);
     },
   });
   const updateProductMutate = useMutation('products.update-product', {
     onSuccess() {
       context.invalidateQueries(['products.list-your-products']);
+      context.invalidateQueries(['recipes.list-your-recipes']);
     },
   });
 
@@ -58,10 +63,19 @@ const Ingredients: React.FC = (props) => {
       unit: 'each',
       description: '',
     },
+    validate: {
+      name: (value) => (value.length > 0 ? null : 'please enter a name'),
+      price: (value) => (value > 0 ? null : 'price must be great than zero'),
+      size: (value: number | undefined) => {
+        if (value == undefined || value <= 0)
+          return 'size must be great than 0';
+      },
+    },
   });
 
   /* @ts-ignore */ // has type any
   const handleNewProductForm = (values) => {
+    if (!form.isValid) return;
     if (productUpdateId) {
       values.id = productUpdateId;
       console.log('values?', values);

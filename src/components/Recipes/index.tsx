@@ -5,7 +5,6 @@ import { useQuery, trpc } from '../../utils/trpc';
 import {
   IconPencilPlus,
   IconX,
-  IconTrashX,
   IconCircleMinus,
   IconCirclePlus,
 } from '@tabler/icons';
@@ -119,7 +118,7 @@ const Recipes: React.FC = () => {
 
     const cog = (cost / recipe.price) * 100 * 100;
 
-    return cost + ' / ' + cog.toFixed(2) + '%';
+    return '$' + cost.toFixed(2) + ' / ' + cog.toFixed(0) + '%';
   };
 
   // FIXME: fix any type
