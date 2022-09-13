@@ -142,7 +142,7 @@ const Recipes: React.FC = () => {
   const handleNewRecipeForm = (values) => {
     console.log('updateId', recipeUpdateId);
     if (recipeUpdateId) {
-      values.price = values.price * 100
+      values.price = values.price * 100;
       values.id = recipeUpdateId;
       console.log('values', values);
       updateRecipeMutate.mutate(values);
@@ -287,12 +287,14 @@ const Recipes: React.FC = () => {
                       .toFixed(2)}
                   </Text>
                   <Text className="" align="center">
-                    {(form.values.ingredients.reduce(
-                      (acc, item) => (acc + item.cost ? item.cost : 0),
-                      0
-                    ) /
-                      form.values.price) *
-                      100 || 0}
+                    {(
+                      (form.values.ingredients.reduce(
+                        (acc, item) => acc + (item.cost ? item.cost : 0),
+                        0
+                      ) /
+                        form.values.price) *
+                        100 || 0
+                    ).toFixed(0)}
                     %
                   </Text>
                 </div>
