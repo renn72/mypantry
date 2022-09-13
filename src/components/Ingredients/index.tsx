@@ -96,12 +96,24 @@ const Ingredients: React.FC = (props) => {
         </h2>
         <div ref={ingredientList} className="flex flex-col gap-8 my-8 flex-1">
           {products?.map((p) => (
-            <div
+            <Box
+              sx={(theme) => ({
+                backgroundColor:
+                  theme.colorScheme === 'dark'
+                    ? theme.colors.dark[6]
+                    : theme.colors.gray[0],
+                '&:hover': {
+                  backgroundColor:
+                    theme.colorScheme === 'dark'
+                      ? theme.colors.dark[5]
+                      : theme.colors.gray[1],
+                },
+              })}
               key={p.id}
-              className="flex justify-between mx-20 px-4 py-2 rounded-lg bg-gray-700 hover:bg-gray-600 cursor-pointer"
+              className="flex justify-between mx-20 px-4 py-2 rounded-lg cursor-pointer"
               onClick={() => {
                 setProductUpdateId(p.id);
-                console.log('price', p.price);
+                // console.log('price', p.price);
                 form.setValues({
                   description: p.description ? p.description : '',
                   name: p.name,
@@ -118,7 +130,7 @@ const Ingredients: React.FC = (props) => {
                   onClick={() => deleteProductMutate.mutate({ id: p.id })}
                 />
               </div>
-            </div>
+            </Box>
           ))}
         </div>
         <Button

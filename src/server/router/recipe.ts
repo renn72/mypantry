@@ -13,6 +13,18 @@ export const createRecipeSchema = z.object({
     })
   ),
 });
+export const updateRecipeSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  description: z.string(),
+  price: z.number(),
+  ingredients: z.array(
+    z.object({
+      name: z.string(),
+      quantity: z.number(),
+    })
+  ),
+});
 
 export const recipeRouter = createRouter()
   .middleware(async ({ ctx, next }) => {
@@ -73,6 +85,22 @@ export const recipeRouter = createRouter()
             },
           },
         });
+      } catch (e) {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+        });
+      }
+    },
+  })
+  .mutation('update-recipe', {
+    input: updateRecipeSchema,
+    async resolve({ ctx, input }) {
+      const { id, name, description, price } = input;
+      const user = ctx?.session?.user;
+      const userId = user?.id;
+      try {
+        if (!user) return;
+        console.log('input?', input);
       } catch (e) {
         throw new TRPCError({
           code: 'BAD_REQUEST',

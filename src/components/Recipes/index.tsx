@@ -39,7 +39,10 @@ const Recipes: React.FC = () => {
     },
   });
 
+  const updateRecipeMutate = useMutation('recipes.update-recipe');
+
   const [recipeModelOpen, setRecipeModelOpen] = useState(false);
+  const [recipeUpdateId, setRecipeUpdateId] = useState<string | null>(null);
 
   const form = useForm({
     initialValues: {
@@ -147,17 +150,37 @@ const Recipes: React.FC = () => {
           </h2>
           <div className="flex flex-col gap-8 my-8 flex-1">
             {recipes?.map((recipe) => (
-              <div
+              <Box
+                sx={(theme) => ({
+                  backgroundColor:
+                    theme.colorScheme === 'dark'
+                      ? theme.colors.dark[6]
+                      : theme.colors.gray[0],
+                  '&:hover': {
+                    backgroundColor:
+                      theme.colorScheme === 'dark'
+                        ? theme.colors.dark[5]
+                        : theme.colors.gray[1],
+                  },
+                })}
                 key={recipe.id}
-                className="flex justify-between mx-20 px-4 py-2 rounded-lg bg-gray-700 hover:bg-gray-600"
+                className="flex justify-between rounded-lg mx-20 px-4 py-2 cursor-pointer"
+                onClick={() => {
+                  setRecipeUpdateId(recipe.id);
+                  form.setValues({
+                    name: recipe.name,
+                    price: recipe.price,
+                    description: recipe.description ? recipe.description : '',
+                    ingredients: [],
+                  });
+                  setRecipeModelOpen(true);
+                }}
               >
                 <div className="capitalize">{recipe.name}</div>
                 <div>price: {(recipe.price / 100).toFixed(2)}</div>
                 <div>{findCogs(recipe)}</div>
-                <div className="flex gap-2">
-                  <IconX />
-                </div>
-              </div>
+                <IconX />
+              </Box>
             ))}
           </div>
           <Button
