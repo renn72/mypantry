@@ -35,7 +35,7 @@ const Layout: React.FC<LayoutProps> = (props) => {
 
   return (
     <div className="w-full h-full">
-      <div className='flex items-center justify-between content-evenly my-2 mx-5'>
+      <div className="flex items-center justify-between content-evenly my-2 mx-5">
         <div className="top-4 left-8 cursor-pointer">
           <Link href="/">
             <h2 className="text-2xl font-extrabold">mypantry</h2>
@@ -54,10 +54,7 @@ const Layout: React.FC<LayoutProps> = (props) => {
                 rightIcon={loggingOut ? null : <IconLogin />}
                 onClick={handleLogout}
               >
-                {loggingOut ? <Loader
-                  color="white"
-                  size={20}
-                /> : 'Logout'}
+                {loggingOut ? <Loader color="white" size={20} /> : 'Logout'}
               </Button>
             ) : (
               <Button
@@ -66,7 +63,7 @@ const Layout: React.FC<LayoutProps> = (props) => {
                 rightIcon={<IconLayoutSidebarRightExpand />}
                 onClick={() => signIn()}
               >
-              Login
+                Login
               </Button>
             )}
           </Skeleton>

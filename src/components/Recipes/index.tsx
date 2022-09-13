@@ -167,6 +167,7 @@ const Recipes: React.FC = () => {
                 className="flex justify-between rounded-lg mx-20 px-4 py-2 cursor-pointer"
                 onClick={() => {
                   setRecipeUpdateId(recipe.id);
+                  console.log(recipe);
                   form.setValues({
                     name: recipe.name,
                     price: recipe.price,
@@ -190,7 +191,11 @@ const Recipes: React.FC = () => {
             variant="filled"
             fullWidth
             radius="md"
-            onClick={() => setRecipeModelOpen(true)}
+            onClick={() => {
+              setRecipeUpdateId(null);
+              form.reset();
+              setRecipeModelOpen(true);
+            }}
           ></Button>
         </div>
         <Modal
