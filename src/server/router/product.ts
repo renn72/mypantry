@@ -101,11 +101,22 @@ export const productRouter = createRouter()
       const { id } = input;
 
       try {
-        return ctx.prisma.product.delete({
+        const product = await ctx.prisma.product.delete({
           where: {
             id: id,
           },
         });
+        console.log('products', product);
+
+        const recipe_ingredient = await ctx.prisma.recipe_Ingredient.deleteMany(
+          {
+            where: {
+              ingredientId: product.id,
+            },
+          }
+        );
+        return product;
+        // const recipeIngredients = ctx.prisma.product.update()
       } catch (e) {
         throw new TRPCError({
           code: 'BAD_REQUEST',

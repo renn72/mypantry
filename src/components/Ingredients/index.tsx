@@ -125,10 +125,14 @@ const Ingredients: React.FC = (props) => {
               }}
             >
               <div className="capitalize">{p.name}</div>
-              <div className="flex gap-2">
-                <IconX
-                  onClick={() => deleteProductMutate.mutate({ id: p.id })}
-                />
+              <div
+                className="flex gap-2 z-50"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  deleteProductMutate.mutate({ id: p.id });
+                }}
+              >
+                <IconX />
               </div>
             </Box>
           ))}
