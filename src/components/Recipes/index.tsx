@@ -39,7 +39,11 @@ const Recipes: React.FC = () => {
     },
   });
 
-  const updateRecipeMutate = useMutation('recipes.update-recipe');
+  const updateRecipeMutate = useMutation('recipes.update-recipe', {
+    onSuccess() {
+      context.invalidateQueries(['recipes.list-your-recipes']);
+    },
+  });
 
   const [recipeModelOpen, setRecipeModelOpen] = useState(false);
   const [recipeUpdateId, setRecipeUpdateId] = useState<string | null>(null);
@@ -65,6 +69,8 @@ const Recipes: React.FC = () => {
     let itemPriceFormat = '';
     let itemCost = 0;
 
+    if (!item.key) item.key = randomId();
+
     if (form?.values?.ingredients[index]?.name) {
       const [itemSize, itemUnit]: (number | string)[] = products
         ?.filter((p) => p.name == form?.values?.ingredients[index]?.name)
@@ -84,6 +90,7 @@ const Recipes: React.FC = () => {
         console.log(0);
       }
     }
+    console.log('key?', item.key, ' item?', item.name);
     return (
       <div key={item.key} className="grid grid-cols-8 gap-2 my-2 items-center">
         <Select
@@ -133,7 +140,16 @@ const Recipes: React.FC = () => {
   // FIXME: fix any type
   /* @ts-ignore */ // has type any
   const handleNewRecipeForm = (values) => {
-    newRecipeMutate.mutate(values);
+    console.log('updateId', recipeUpdateId);
+    if (recipeUpdateId) {
+      values.price = values.price * 100
+      values.id = recipeUpdateId;
+      console.log('values', values);
+      updateRecipeMutate.mutate(values);
+      setRecipeUpdateId(null);
+    } else {
+      // newRecipeMutate.mutate(values);
+    }
     form.reset();
     setRecipeModelOpen(false);
   };
@@ -170,9 +186,16 @@ const Recipes: React.FC = () => {
                   console.log(recipe);
                   form.setValues({
                     name: recipe.name,
-                    price: recipe.price,
+                    price: recipe.price / 100,
                     description: recipe.description ? recipe.description : '',
-                    ingredients: [],
+                    ingredients: recipe.Recipe_Ingredient.map((i) => {
+                      return {
+                        quantity: i.ingredientQuantity,
+                        name: i.ingredient.name,
+                        cost: 1,
+                        key: '',
+                      };
+                    }),
                   });
                   setRecipeModelOpen(true);
                 }}
@@ -206,7 +229,9 @@ const Recipes: React.FC = () => {
         >
           <Box sx={{ maxWidth: 700 }} mx="auto">
             <form
-              onSubmit={form.onSubmit((values) => handleNewRecipeForm(values))}
+              onSubmit={form.onSubmit((values) => {
+                handleNewRecipeForm(values);
+              })}
               className="flex flex-col gap-2"
             >
               <TextInput
