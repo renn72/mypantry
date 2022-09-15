@@ -15,26 +15,76 @@ import { IconPencilPlus, IconX } from '@tabler/icons';
 import { useMutation, useQuery, trpc } from '../../utils/trpc';
 import React, { useState } from 'react';
 
-import { useAutoAnimate } from '@formkit/auto-animate/react';
-
 // TODO: Form validation
 
-const Ingredients: React.FC = (props) => {
+const Ingredients: React.FC = () => {
   const context = trpc.useContext();
   const newProductMutate = useMutation('products.create-product', {
-    onSuccess() {
+    onMutate: async (data) => {
+      // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
+      await context.cancelQuery(['products.list-your-products']);
+
+      // Snapshot the previous value
+      const previousProducts = context.getQueryData([
+        'products.list-your-products',
+      ]);
+
+      // Optimistically update to the new value
+      if (previousProducts) {
+        context.setQueryData(
+          ['products.list-your-products'],
+          [
+            ...previousProducts,
+            { ...data, id: '', userId: '', createdAt: new Date() },
+          ]
+        );
+      }
+
+      console.log('previousProducts', previousProducts);
+      console.log('data', data);
+
+      return { previousProducts };
+    },
+    onError: (err, variables, productContext) => {
+      if (productContext?.previousProducts) {
+        context.setQueryData(
+          ['products.list-your-products'],
+          productContext.previousProducts
+        );
+      }
+    },
+    onSettled() {
       context.invalidateQueries(['products.list-your-products']);
       context.invalidateQueries(['recipes.list-your-recipes']);
     },
   });
   const deleteProductMutate = useMutation('products.delete-product', {
-    onSuccess() {
+    onMutate: async (data) => {
+      // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
+      await context.cancelQuery(['products.list-your-products']);
+
+      // Snapshot the previous value
+      const previousProducts = context.getQueryData([
+        'products.list-your-products',
+      ]);
+
+      // Optimistically update to the new values
+      if (previousProducts) {
+        const result = previousProducts.filter((p) => p.id != data.id);
+        context.setQueryData(['products.list-your-products'], [...result]);
+      }
+      console.log('previousProducts', previousProducts);
+      console.log('data', data);
+
+      return { previousProducts };
+    },
+    onSettled() {
       context.invalidateQueries(['products.list-your-products']);
       context.invalidateQueries(['recipes.list-your-recipes']);
     },
   });
   const updateProductMutate = useMutation('products.update-product', {
-    onSuccess() {
+    onSettled() {
       context.invalidateQueries(['products.list-your-products']);
       context.invalidateQueries(['recipes.list-your-recipes']);
     },
@@ -42,8 +92,6 @@ const Ingredients: React.FC = (props) => {
 
   const [productModelOpen, setProductModelOpen] = useState(false);
   const [productUpdateId, setProductUpdateId] = useState<string | null>(null);
-
-  const [ingredientList] = useAutoAnimate<HTMLDivElement>();
 
   const { data: products } = useQuery(['products.list-your-products']);
 
@@ -94,7 +142,7 @@ const Ingredients: React.FC = (props) => {
         <h2 className="text-2xl font-extrabold px-4 py-8 flex-none">
           Ingredients
         </h2>
-        <div ref={ingredientList} className="flex flex-col gap-8 my-8 flex-1">
+        <div className="flex flex-col gap-8 my-8 flex-1">
           {products?.map((p) => (
             <Box
               sx={(theme) => ({

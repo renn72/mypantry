@@ -34,7 +34,7 @@ const Recipes: React.FC = () => {
   const { data: products } = useQuery(['products.list-your-products']);
 
   const newRecipeMutate = useMutation('recipes.create-recipe', {
-    onSuccess() {
+    onSettled() {
       context.invalidateQueries(['recipes.list-your-recipes']);
     },
   });
@@ -87,10 +87,8 @@ const Recipes: React.FC = () => {
         itemCost = (item?.quantity * +itemPrice) / +itemSize;
         if (form.values.ingredients[index]?.cost != itemCost)
           form.setFieldValue(`ingredients.${index}.cost`, itemCost);
-        console.log(0);
       }
     }
-    console.log('key?', item.key, ' item?', item.name);
     return (
       <div key={item.key} className="grid grid-cols-8 gap-2 my-2 items-center">
         <Select
@@ -140,11 +138,9 @@ const Recipes: React.FC = () => {
   // FIXME: fix any type
   /* @ts-ignore */ // has type any
   const handleNewRecipeForm = (values) => {
-    console.log('updateId', recipeUpdateId);
     if (recipeUpdateId) {
       values.price = values.price * 100;
       values.id = recipeUpdateId;
-      console.log('values', values);
       updateRecipeMutate.mutate(values);
       setRecipeUpdateId(null);
     } else {
@@ -183,7 +179,6 @@ const Recipes: React.FC = () => {
                 className="flex justify-between rounded-lg mx-20 px-4 py-2 cursor-pointer"
                 onClick={() => {
                   setRecipeUpdateId(recipe.id);
-                  console.log(recipe);
                   form.setValues({
                     name: recipe.name,
                     price: recipe.price / 100,

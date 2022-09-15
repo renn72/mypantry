@@ -82,6 +82,7 @@ export const productRouter = createRouter()
             userId: user.id,
           },
           data: {
+            name: name,
             description: description,
             price: price * 100,
             size: size,
