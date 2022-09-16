@@ -1,12 +1,12 @@
 import {
   Button,
-  Modal,
   TextInput,
   Group,
   Box,
   NumberInput,
   Textarea,
   Select,
+  Collapse,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 
@@ -137,14 +137,17 @@ const Ingredients: React.FC = () => {
           onClick={() => {
             setProductUpdateId(null);
             form.reset();
-            setProductModelOpen(true);
+            setProductModelOpen(!productModelOpen);
           }}
         ></Button>
       </div>
-      <Modal
-        opened={productModelOpen}
-        onClose={() => setProductModelOpen(false)}
+      <Collapse
+        in={productModelOpen}
+        transitionDuration={500}
+        transitionTimingFunction="ease-in"
+        // onClose={() => setProductModelOpen(false)}
         title="More Products"
+        className="mb-16"
       >
         <Box sx={{ maxWidth: 300 }} mx="auto">
           <form
@@ -191,7 +194,7 @@ const Ingredients: React.FC = () => {
             </Group>
           </form>
         </Box>
-      </Modal>
+      </Collapse>
     </div>
   );
 };

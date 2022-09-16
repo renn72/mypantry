@@ -1,4 +1,3 @@
-import React from 'react';
 import { useMutation, useQuery, trpc } from '../../../utils/trpc';
 
 export const useGetProductData = () => {
@@ -33,7 +32,7 @@ export const useCreateProductData = () => {
 
       return { previousProducts };
     },
-    onError: (err, variables, productContext) => {
+    onError: (_err, _variables, productContext) => {
       if (productContext?.previousProducts) {
         context.setQueryData(
           ['products.list-your-products'],
