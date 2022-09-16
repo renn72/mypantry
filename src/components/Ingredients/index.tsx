@@ -12,88 +12,29 @@ import { useForm } from '@mantine/form';
 
 import { IconPencilPlus, IconX } from '@tabler/icons';
 
-import { useMutation, useQuery, trpc } from '../../utils/trpc';
 import React, { useState } from 'react';
+import {
+  useCreateProductData,
+  useDeleteProductData,
+  useGetProductData,
+  useUpdateProductData,
+} from './store';
 
 // TODO: Form validation
 
+// Custom Hooks
+//
+
 const Ingredients: React.FC = () => {
-  const context = trpc.useContext();
-  const newProductMutate = useMutation('products.create-product', {
-    onMutate: async (data) => {
-      // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
-      await context.cancelQuery(['products.list-your-products']);
-
-      // Snapshot the previous value
-      const previousProducts = context.getQueryData([
-        'products.list-your-products',
-      ]);
-
-      // Optimistically update to the new value
-      if (previousProducts) {
-        context.setQueryData(
-          ['products.list-your-products'],
-          [
-            ...previousProducts,
-            { ...data, id: '', userId: '', createdAt: new Date() },
-          ]
-        );
-      }
-
-      console.log('previousProducts', previousProducts);
-      console.log('data', data);
-
-      return { previousProducts };
-    },
-    onError: (err, variables, productContext) => {
-      if (productContext?.previousProducts) {
-        context.setQueryData(
-          ['products.list-your-products'],
-          productContext.previousProducts
-        );
-      }
-    },
-    onSettled() {
-      context.invalidateQueries(['products.list-your-products']);
-      context.invalidateQueries(['recipes.list-your-recipes']);
-    },
-  });
-  const deleteProductMutate = useMutation('products.delete-product', {
-    onMutate: async (data) => {
-      // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
-      await context.cancelQuery(['products.list-your-products']);
-
-      // Snapshot the previous value
-      const previousProducts = context.getQueryData([
-        'products.list-your-products',
-      ]);
-
-      // Optimistically update to the new values
-      if (previousProducts) {
-        const result = previousProducts.filter((p) => p.id != data.id);
-        context.setQueryData(['products.list-your-products'], [...result]);
-      }
-      console.log('previousProducts', previousProducts);
-      console.log('data', data);
-
-      return { previousProducts };
-    },
-    onSettled() {
-      context.invalidateQueries(['products.list-your-products']);
-      context.invalidateQueries(['recipes.list-your-recipes']);
-    },
-  });
-  const updateProductMutate = useMutation('products.update-product', {
-    onSettled() {
-      context.invalidateQueries(['products.list-your-products']);
-      context.invalidateQueries(['recipes.list-your-recipes']);
-    },
-  });
+  const productData = useGetProductData();
+  const newProduct = useCreateProductData();
+  const deleteProduct = useDeleteProductData();
+  const updateProduct = useUpdateProductData();
 
   const [productModelOpen, setProductModelOpen] = useState(false);
   const [productUpdateId, setProductUpdateId] = useState<string | null>(null);
 
-  const { data: products } = useQuery(['products.list-your-products']);
+  const products = productData.data;
 
   interface FormValues {
     name: string;
@@ -127,14 +68,16 @@ const Ingredients: React.FC = () => {
     if (productUpdateId) {
       values.id = productUpdateId;
       console.log('values?', values);
-      updateProductMutate.mutate(values);
+      updateProduct.mutate(values);
     } else {
-      newProductMutate.mutate(values);
+      newProduct.mutate(values);
     }
     form.reset();
     setProductUpdateId(null);
     setProductModelOpen(false);
   };
+
+  if (productData.isLoading) return <div>loading...</div>;
 
   return (
     <div>
@@ -177,7 +120,7 @@ const Ingredients: React.FC = () => {
                 className="flex gap-2 z-50"
                 onClick={(e) => {
                   e.stopPropagation();
-                  deleteProductMutate.mutate({ id: p.id });
+                  deleteProduct.mutate({ id: p.id });
                 }}
               >
                 <IconX />
