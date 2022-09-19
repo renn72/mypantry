@@ -8,7 +8,7 @@ import {
   Select,
   Collapse,
 } from '@mantine/core';
-import { useForm } from '@mantine/form';
+import { createFormContext, useForm } from '@mantine/form';
 
 import { IconPencilPlus, IconX } from '@tabler/icons';
 
@@ -20,10 +20,68 @@ import {
   useUpdateProductData,
 } from './store';
 
-// TODO: Form validation
+// TODO: Form validation on server
 
-// Custom Hooks
-//
+interface ProductFormValues {
+  name: string;
+  price: number;
+  size: number | undefined;
+  unit: string;
+  description: string;
+}
+
+const [ProductFormProvider, useProductFormContext, useProductForm] =
+  createFormContext<ProductFormValues>();
+
+const ProductForm = ({ form }) => {
+  return (
+    <div>
+      <form
+        onSubmit={form.onSubmit((values) => handleNewProductForm(values))}
+        className="flex flex-col gap-2"
+      >
+        <TextInput
+          aria-label="Name"
+          placeholder="Product Name"
+          {...form.getInputProps('name')}
+        />
+        <NumberInput
+          aria-label="Price"
+          min={0.01}
+          precision={2}
+          placeholder="10"
+          hideControls
+          icon={'$'}
+          {...form.getInputProps('price')}
+        />
+        <div className="flex">
+          <NumberInput
+            aria-label="Size"
+            placeholder="Size"
+            {...form.getInputProps('size')}
+          />
+          <Select
+            aria-label="Unit"
+            searchable
+            data={['each', 'ml', 'g']}
+            {...form.getInputProps('unit')}
+          />
+        </div>
+        <Textarea
+          aria-label="Description"
+          placeholder="Product description"
+          autosize
+          minRows={2}
+          {...form.getInputProps('description')}
+        />
+
+        <Group position="right" mt="md">
+          <Button type="submit">Submit</Button>
+        </Group>
+      </form>
+    </div>
+  );
+};
 
 const Ingredients: React.FC = () => {
   const productData = useGetProductData();
@@ -150,49 +208,7 @@ const Ingredients: React.FC = () => {
         className="mb-16"
       >
         <Box sx={{ maxWidth: 300 }} mx="auto">
-          <form
-            onSubmit={form.onSubmit((values) => handleNewProductForm(values))}
-            className="flex flex-col gap-2"
-          >
-            <TextInput
-              aria-label="Name"
-              placeholder="Product Name"
-              {...form.getInputProps('name')}
-            />
-            <NumberInput
-              aria-label="Price"
-              min={0.01}
-              precision={2}
-              placeholder="10"
-              hideControls
-              icon={'$'}
-              {...form.getInputProps('price')}
-            />
-            <div className="flex">
-              <NumberInput
-                aria-label="Size"
-                placeholder="Size"
-                {...form.getInputProps('size')}
-              />
-              <Select
-                aria-label="Unit"
-                searchable
-                data={['each', 'ml', 'g']}
-                {...form.getInputProps('unit')}
-              />
-            </div>
-            <Textarea
-              aria-label="Description"
-              placeholder="Product description"
-              autosize
-              minRows={2}
-              {...form.getInputProps('description')}
-            />
-
-            <Group position="right" mt="md">
-              <Button type="submit">Submit</Button>
-            </Group>
-          </form>
+          <ProductForm form={form} />
         </Box>
       </Collapse>
     </div>
