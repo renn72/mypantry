@@ -13,6 +13,7 @@ import { useForm } from '@mantine/form';
 import { IconPencilPlus, IconX } from '@tabler/icons';
 
 import React, { useState } from 'react';
+import ProductForm from './form';
 import {
   useCreateProductData,
   useDeleteProductData,
@@ -192,6 +193,7 @@ const Ingredients: React.FC = () => {
           </form>
         </Box>
       </Collapse>
+      <ProductForm />
     </div>
   );
 };

@@ -1,5 +1,9 @@
 import { useMutation, useQuery, trpc } from '../../../utils/trpc';
 
+export const useFetchProductData = () => {
+  return useQuery(['products.list-your-products']);
+};
+
 export const useGetProductData = () => {
   return useQuery(['products.list-your-products']);
 };

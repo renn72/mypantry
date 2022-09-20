@@ -30,6 +30,8 @@ const randomId = () => {
 const Recipes: React.FC = () => {
   const context = trpc.useContext();
 
+  context.
+
   const { data: recipes } = useQuery(['recipes.list-your-recipes']);
   const { data: products } = useQuery(['products.list-your-products']);
 
