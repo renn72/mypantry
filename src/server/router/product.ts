@@ -1,25 +1,11 @@
 import { createRouter } from './context';
-import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
 
-export const createProductSchema = z.object({
-  name: z.string(),
-  description: z.string(),
-  price: z.number(),
-  size: z.number(),
-  unit: z.string(),
-});
-export const updateProductSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
-  price: z.number(),
-  size: z.number(),
-  unit: z.string(),
-});
-export const deleteProductSchema = z.object({
-  id: z.string(),
-});
+import {
+  createProductSchema,
+  updateProductSchema,
+  deleteProductSchema,
+} from './product-schema';
 
 export const productRouter = createRouter()
   .middleware(async ({ ctx, next }) => {

@@ -16,8 +16,12 @@ import {
   Select,
 } from '@mantine/core';
 
-import { z } from 'zod';
+// import { z } from 'zod';
 import { useZorm } from 'react-zorm';
+import {
+  createProductSchema,
+  updateProductSchema,
+} from '../../../server/router/product-schema';
 
 const ProductForm = () => {
   const productData = useGetProductData();
@@ -27,37 +31,64 @@ const ProductForm = () => {
 
   const [productUpdateId, setProductUpdateId] = useState<string | null>(null);
 
-  const handleNewProductForm = (values) => {
-    if (!form.isValid) return;
-    if (productUpdateId) {
-      values.id = productUpdateId;
-      console.log('values?', values);
-      updateProduct.mutate(values);
-    } else {
-      newProduct.mutate(values);
-    }
-    form.reset();
-    setProductUpdateId(null);
-    setProductModelOpen(false);
-  };
+  const zo = useZorm('product', createProductSchema, {
+    onValidSubmit(e) {
+      e.preventDefault(), alert('Form ok\n' + JSON.stringify(e.data, null, 2));
+    },
+  });
+  const disabled = zo.validation?.success !== true;
+
+  console.log('zorm', zo);
+
+  // const handleNewProductForm = (values) => {
+  //   if (!form.isValid) return;
+  //   if (productUpdateId) {
+  //     values.id = productUpdateId;
+  //     console.log('values?', values);
+  //     updateProduct.mutate(values);
+  //   } else {
+  //     newProduct.mutate(values);
+  //   }
+  //   form.reset();
+  //   setProductUpdateId(null);
+  // };
 
   return (
     <div>
-      <form className="flex flex-col gap-2">
-        <TextInput aria-label="Name" placeholder="Product Name" />
+      <form ref={zo.ref} className="flex flex-col gap-2">
+        <input
+          name={zo.fields.name()}
+          aria-label="name"
+          placeholder="Product Name"
+          type="text"
+          className={zo.errors.name('errored')}
+        />
+        {zo.errors.name((e) => (
+          <div>{e.message}</div>
+        ))}
         <NumberInput
+          name={zo.fields.price()}
           aria-label="Price"
-          min={0.01}
-          precision={2}
+          // precision={2}
           placeholder="10"
           hideControls
           icon={'$'}
         />
         <div className="flex">
-          <NumberInput aria-label="Size" placeholder="Size" />
-          <Select aria-label="Unit" searchable data={['each', 'ml', 'g']} />
+          <NumberInput
+            name={zo.fields.size()}
+            aria-label="Size"
+            placeholder="Size"
+          />
+          <Select
+            name={zo.fields.unit()}
+            aria-label="Unit"
+            searchable
+            data={['each', 'ml', 'g']}
+          />
         </div>
         <Textarea
+          name={zo.fields.description()}
           aria-label="Description"
           placeholder="Product description"
           autosize
@@ -65,8 +96,11 @@ const ProductForm = () => {
         />
 
         <Group position="right" mt="md">
-          <Button type="submit">Submit</Button>
+          <Button type="submit" disabled={disabled}>
+            Submit
+          </Button>
         </Group>
+        <pre>Validation status: {JSON.stringify(zo.validation, null, 2)}</pre>
       </form>
     </div>
   );
