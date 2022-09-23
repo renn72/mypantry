@@ -1,11 +1,6 @@
-import React, { useState } from 'react';
-
-import {
-  useCreateProductData,
-  useDeleteProductData,
-  useGetProductData,
-  useUpdateProductData,
-} from '../store';
+import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import PropTypes from 'prop-types';
+import { atom, useAtom } from 'jotai';
 
 import {
   Button,
@@ -15,95 +10,141 @@ import {
   Textarea,
   Select,
 } from '@mantine/core';
+import { useForm, zodResolver } from '@mantine/form';
 
-// import { z } from 'zod';
-import { useZorm } from 'react-zorm';
-import {
-  createProductSchema,
-  updateProductSchema,
-} from '../../../server/router/product-schema';
+import { useCreateProductData, useUpdateProductData } from '../store';
 
-const ProductForm = () => {
-  const productData = useGetProductData();
+import { createProductSchema } from '../../../server/router/product-schema';
+
+export interface Product {
+  id: string | null;
+  name: string;
+  price: number;
+  size: number;
+  unit: string;
+  description: string;
+}
+
+export const productAtom = atom<Product>({
+  id: null,
+  name: '',
+  price: 0,
+  size: 0,
+  unit: '',
+  description: '',
+});
+
+type ProductFormProps = {
+  productModelOpen: boolean;
+  setProductModelOpen: Dispatch<SetStateAction<boolean>>;
+};
+
+const ProductForm = ({
+  productModelOpen,
+  setProductModelOpen,
+}: ProductFormProps) => {
   const newProduct = useCreateProductData();
-  const deleteProduct = useDeleteProductData();
   const updateProduct = useUpdateProductData();
 
-  const [productUpdateId, setProductUpdateId] = useState<string | null>(null);
+  const [productUpdate, setProductUpdate] = useAtom(productAtom);
 
-  const zo = useZorm('product', createProductSchema, {
-    onValidSubmit(e) {
-      e.preventDefault(), alert('Form ok\n' + JSON.stringify(e.data, null, 2));
+  interface FormValues {
+    name: string;
+    price: number;
+    size: number | undefined;
+    unit: string;
+    description: string;
+  }
+
+  const form = useForm<FormValues>({
+    initialValues: {
+      name: '',
+      price: 0,
+      size: undefined,
+      unit: 'each',
+      description: '',
     },
+    validate: zodResolver(createProductSchema),
+    validateInputOnBlur: true,
   });
-  const disabled = zo.validation?.success !== true;
 
-  console.log('zorm', zo);
+  /* @ts-ignore */ // has type any
+  const handleNewProductForm = (values) => {
+    if (!form.isValid) return;
+    if (productUpdate.id) {
+      values.id = productUpdate.id;
+      console.log('values?', values);
+      updateProduct.mutate(values);
+    } else {
+      newProduct.mutate(values);
+    }
+    form.reset();
+    setProductUpdate({ ...productUpdate, id: null });
+    setProductModelOpen(false);
+  };
 
-  // const handleNewProductForm = (values) => {
-  //   if (!form.isValid) return;
-  //   if (productUpdateId) {
-  //     values.id = productUpdateId;
-  //     console.log('values?', values);
-  //     updateProduct.mutate(values);
-  //   } else {
-  //     newProduct.mutate(values);
-  //   }
-  //   form.reset();
-  //   setProductUpdateId(null);
-  // };
+  useEffect(() => {
+    if (productModelOpen === false) setTimeout(form.reset, 300);
+    if (productModelOpen === true && productUpdate.id) {
+      form.setValues({
+        name: productUpdate.name,
+        description: productUpdate.description,
+        price: productUpdate.price,
+        size: productUpdate.size,
+        unit: productUpdate.unit,
+      });
+    }
+  }, [productModelOpen]);
 
   return (
-    <div>
-      <form ref={zo.ref} className="flex flex-col gap-2">
-        <input
-          name={zo.fields.name()}
-          aria-label="name"
-          placeholder="Product Name"
-          type="text"
-          className={zo.errors.name('errored')}
-        />
-        {zo.errors.name((e) => (
-          <div>{e.message}</div>
-        ))}
+    <form
+      onSubmit={form.onSubmit((values) => handleNewProductForm(values))}
+      className="flex flex-col gap-2"
+    >
+      <TextInput
+        aria-label="Name"
+        placeholder="Product Name"
+        {...form.getInputProps('name')}
+      />
+      <NumberInput
+        aria-label="Price"
+        precision={2}
+        placeholder="10"
+        hideControls
+        icon={'$'}
+        {...form.getInputProps('price')}
+      />
+      <div className="flex">
         <NumberInput
-          name={zo.fields.price()}
-          aria-label="Price"
-          // precision={2}
-          placeholder="10"
-          hideControls
-          icon={'$'}
+          aria-label="Size"
+          placeholder="Size"
+          precision={2}
+          {...form.getInputProps('size')}
         />
-        <div className="flex">
-          <NumberInput
-            name={zo.fields.size()}
-            aria-label="Size"
-            placeholder="Size"
-          />
-          <Select
-            name={zo.fields.unit()}
-            aria-label="Unit"
-            searchable
-            data={['each', 'ml', 'g']}
-          />
-        </div>
-        <Textarea
-          name={zo.fields.description()}
-          aria-label="Description"
-          placeholder="Product description"
-          autosize
-          minRows={2}
+        <Select
+          aria-label="Unit"
+          searchable
+          data={['each', 'ml', 'g']}
+          {...form.getInputProps('unit')}
         />
+      </div>
+      <Textarea
+        aria-label="Description"
+        placeholder="Product description"
+        autosize
+        minRows={2}
+        {...form.getInputProps('description')}
+      />
 
-        <Group position="right" mt="md">
-          <Button type="submit" disabled={disabled}>
-            Submit
-          </Button>
-        </Group>
-        <pre>Validation status: {JSON.stringify(zo.validation, null, 2)}</pre>
-      </form>
-    </div>
+      <Group position="right" mt="md">
+        <Button type="submit">Submit</Button>
+      </Group>
+    </form>
   );
+};
+
+ProductForm.propTypes = {
+  setProductModelOpen: PropTypes.func,
 };
 
 export default ProductForm;
