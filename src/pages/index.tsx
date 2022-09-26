@@ -6,7 +6,7 @@ import type { NextPage } from 'next';
 
 import React from 'react';
 
-import Ingredients from '../components/Ingredients';
+import Product from '../components/Product';
 import Recipes from '../components/Recipes';
 
 const Home: NextPage = () => {
@@ -23,7 +23,7 @@ const Home: NextPage = () => {
         {session && session.user ? (
           <div className="flex gap-6">
             <div className="container border-gray-600 border-2 min-w-300 max-w-md">
-              <Ingredients />
+              <Product />
             </div>
             <div className="container border-gray-600 border-2 min-w-600">
               <Recipes />

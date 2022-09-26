@@ -8,13 +8,18 @@ import { IconX } from '@tabler/icons';
 type ProductListProps = {
   tailwind: string;
   setProductModelOpen: Dispatch<SetStateAction<boolean>>;
+  productModelOpen: boolean;
 };
 
-const ProductList = ({ setProductModelOpen, tailwind }: ProductListProps) => {
+const ProductList = ({
+  productModelOpen,
+  setProductModelOpen,
+  tailwind,
+}: ProductListProps) => {
   const productData = useGetProductData();
   const deleteProduct = useDeleteProductData();
 
-  const [, setProductUpdate] = useAtom(productAtom);
+  const [productUpdate, setProductUpdate] = useAtom(productAtom);
 
   const products = productData.data;
   if (productData.isLoading) return <div>loading... </div>;
@@ -46,7 +51,13 @@ const ProductList = ({ setProductModelOpen, tailwind }: ProductListProps) => {
               size: p.size,
               unit: p.unit,
             });
-            setProductModelOpen(true);
+            if (productModelOpen) {
+              setProductModelOpen(false);
+              if (productUpdate.id !== p.id)
+                setTimeout(() => setProductModelOpen(true), 350);
+            } else {
+              setProductModelOpen(true);
+            }
           }}
         >
           <div className="capitalize">{p.name}</div>

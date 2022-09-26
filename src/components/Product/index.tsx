@@ -10,7 +10,7 @@ import ProductList from './productList';
 
 // TODO: Form validation on server
 
-const Ingredients: React.FC = () => {
+const Product: React.FC = () => {
   const [productModelOpen, setProductModelOpen] = useState(false);
   const [productUpdate, setProductUpdate] = useAtom(productAtom);
 
@@ -22,6 +22,7 @@ const Ingredients: React.FC = () => {
         </h2>
         <ProductList
           tailwind={'flex flex-col gap-8 my-8 flex-1'}
+          productModelOpen={productModelOpen}
           setProductModelOpen={setProductModelOpen}
         />
         <Button
@@ -54,4 +55,4 @@ const Ingredients: React.FC = () => {
   );
 };
 
-export default Ingredients;
+export default Product;
