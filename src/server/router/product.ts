@@ -102,8 +102,8 @@ export const productRouter = createRouter()
             },
           }
         );
+        console.log('RI', recipe_ingredient);
         return product;
-        // const recipeIngredients = ctx.prisma.product.update()
       } catch (e) {
         throw new TRPCError({
           code: 'BAD_REQUEST',

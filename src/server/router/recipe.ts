@@ -1,30 +1,11 @@
 import { createRouter } from './context';
-import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
 
-export const createRecipeSchema = z.object({
-  name: z.string(),
-  description: z.string(),
-  price: z.number(),
-  ingredients: z.array(
-    z.object({
-      name: z.string(),
-      quantity: z.number(),
-    })
-  ),
-});
-export const updateRecipeSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
-  price: z.number(),
-  ingredients: z.array(
-    z.object({
-      name: z.string(),
-      quantity: z.number(),
-    })
-  ),
-});
+import {
+  createRecipeSchema,
+  deleteRecipeSchema,
+  updateRecipeSchema,
+} from './recipe-schema';
 
 export const recipeRouter = createRouter()
   .middleware(async ({ ctx, next }) => {
@@ -48,6 +29,7 @@ export const recipeRouter = createRouter()
   .mutation('create-recipe', {
     input: createRecipeSchema,
     async resolve({ ctx, input }) {
+      console.log('in');
       const { name, description, price } = input;
       const user = ctx?.session?.user;
       const userId = user?.id;
@@ -62,8 +44,8 @@ export const recipeRouter = createRouter()
       });
 
       console.log('input?', input);
-      console.log(productsMap);
-      console.log(recipeProducts);
+      console.log('products', productsMap);
+      console.log('recipe', recipeProducts);
 
       try {
         if (!userId) return;
@@ -131,6 +113,35 @@ export const recipeRouter = createRouter()
             },
           },
         });
+      } catch (e) {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+        });
+      }
+    },
+  })
+  .mutation('delete-recipe', {
+    input: deleteRecipeSchema,
+    async resolve({ ctx, input }) {
+      const { id } = input;
+
+      try {
+        const recipe = await ctx.prisma.recipe.delete({
+          where: {
+            id: id,
+          },
+        });
+        console.log('recipe', recipe);
+
+        const recipe_ingredient = await ctx.prisma.recipe_Ingredient.deleteMany(
+          {
+            where: {
+              recipeId: recipe.id,
+            },
+          }
+        );
+        console.log('RI', recipe_ingredient);
+        return recipe;
       } catch (e) {
         throw new TRPCError({
           code: 'BAD_REQUEST',

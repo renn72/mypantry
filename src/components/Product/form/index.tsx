@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import React, { Dispatch, SetStateAction, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { atom, useAtom } from 'jotai';
 

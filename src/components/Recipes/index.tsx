@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 
-import { useQuery, useMutation, trpc } from '../../utils/trpc';
-
 import {
   IconPencilPlus,
   IconX,
@@ -22,28 +20,25 @@ import {
 } from '@mantine/core';
 
 import { useForm } from '@mantine/form';
+import {
+  useCreateRecipeData,
+  useDeleteRecipeData,
+  useGetRecipeData,
+  useUpdateRecipeData,
+} from './store';
+import { useGetProductData } from '../Product/store';
 
 const randomId = () => {
   return Math.random().toString();
 };
 
 const Recipes: React.FC = () => {
-  const context = trpc.useContext();
+  const { data: recipes, isLoading: recipesLoading } = useGetRecipeData();
+  const { data: products, isLoading: productsLoading } = useGetProductData();
 
-  const { data: recipes } = useQuery(['recipes.list-your-recipes']);
-  const { data: products } = useQuery(['products.list-your-products']);
-
-  const newRecipeMutate = useMutation('recipes.create-recipe', {
-    onSettled() {
-      context.invalidateQueries(['recipes.list-your-recipes']);
-    },
-  });
-
-  const updateRecipeMutate = useMutation('recipes.update-recipe', {
-    onSuccess() {
-      context.invalidateQueries(['recipes.list-your-recipes']);
-    },
-  });
+  const newRecipeMutate = useCreateRecipeData();
+  const updateRecipeMutate = useUpdateRecipeData();
+  const deleteRecipeMutate = useDeleteRecipeData();
 
   const [recipeModelOpen, setRecipeModelOpen] = useState(false);
   const [recipeUpdateId, setRecipeUpdateId] = useState<string | null>(null);
@@ -138,20 +133,20 @@ const Recipes: React.FC = () => {
   // FIXME: fix any type
   /* @ts-ignore */ // has type any
   const handleNewRecipeForm = (values) => {
+    console.log(values);
     if (recipeUpdateId) {
       values.price = values.price * 100;
       values.id = recipeUpdateId;
       updateRecipeMutate.mutate(values);
       setRecipeUpdateId(null);
     } else {
-      // newRecipeMutate.mutate(values);
+      newRecipeMutate.mutate(values);
     }
     form.reset();
     setRecipeModelOpen(false);
   };
 
-  if (!products) return <div>loading..</div>;
-  if (!recipes) return <div>loading..</div>;
+  if (productsLoading || recipesLoading) return <div>loading..</div>;
 
   return (
     <div>
@@ -198,7 +193,12 @@ const Recipes: React.FC = () => {
                 <div className="capitalize">{recipe.name}</div>
                 <div>price: {(recipe.price / 100).toFixed(2)}</div>
                 <div>{findCogs(recipe)}</div>
-                <IconX />
+                <IconX
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    deleteRecipeMutate.mutate({ id: recipe.id });
+                  }}
+                />
               </Box>
             ))}
           </div>
