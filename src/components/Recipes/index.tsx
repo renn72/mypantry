@@ -17,6 +17,7 @@ import {
   Select,
   ActionIcon,
   Text,
+  Collapse,
 } from '@mantine/core';
 
 import { useForm } from '@mantine/form';
@@ -27,6 +28,8 @@ import {
   useUpdateRecipeData,
 } from './store';
 import { useGetProductData } from '../Product/store';
+import RecipeList from './RecipeList';
+import { set } from 'zod';
 
 const randomId = () => {
   return Math.random().toString();
@@ -201,6 +204,11 @@ const Recipes: React.FC = () => {
                 />
               </Box>
             ))}
+            <RecipeList
+              tailwind={'flex flex-col gap-8 my-8 flex-1'}
+              setRecipeModelOpen={setRecipeModelOpen}
+              recipeModelOpen={recipeModelOpen}
+            />
           </div>
           <Button
             className="mx-auto my-16 max-w-sm flex-none"
@@ -210,18 +218,13 @@ const Recipes: React.FC = () => {
             fullWidth
             radius="md"
             onClick={() => {
+              setRecipeModelOpen(!recipeModelOpen);
               setRecipeUpdateId(null);
               form.reset();
-              setRecipeModelOpen(true);
             }}
           ></Button>
         </div>
-        <Modal
-          opened={recipeModelOpen}
-          onClose={() => setRecipeModelOpen(false)}
-          title="More Recipe"
-          size="xl"
-        >
+        <Collapse in={recipeModelOpen} title="More Recipe">
           <Box sx={{ maxWidth: 700 }} mx="auto">
             <form
               onSubmit={form.onSubmit((values) => {
@@ -324,7 +327,7 @@ const Recipes: React.FC = () => {
               </Group>
             </form>
           </Box>
-        </Modal>
+        </Collapse>
       </div>
     </div>
   );
