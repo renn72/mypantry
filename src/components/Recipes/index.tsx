@@ -1,18 +1,10 @@
 import React, { useState } from 'react';
 
-import {
-  IconPencilPlus,
-  IconX,
-  IconCircleMinus,
-  IconCirclePlus,
-} from '@tabler/icons';
+import { IconPencilPlus, IconCircleMinus } from '@tabler/icons';
 import {
   Button,
-  TextInput,
-  Group,
   Box,
   NumberInput,
-  Textarea,
   Select,
   ActionIcon,
   Text,
@@ -158,7 +150,7 @@ const Recipes: React.FC = () => {
             Recipes
           </h2>
           <div className="flex flex-col gap-8 my-8 flex-1">
-            {recipes?.map((recipe) => (
+            {/* recipes?.map((recipe) => (
               <Box
                 sx={(theme) => ({
                   backgroundColor:
@@ -202,7 +194,7 @@ const Recipes: React.FC = () => {
                   }}
                 />
               </Box>
-            ))}
+            )) */}
             <RecipeList
               tailwind={'flex flex-col gap-8 my-8 flex-1'}
               setRecipeModelOpen={setRecipeModelOpen}
