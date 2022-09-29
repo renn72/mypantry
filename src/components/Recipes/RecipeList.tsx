@@ -1,13 +1,9 @@
 import { useAtom } from 'jotai';
 import React, { Dispatch, SetStateAction } from 'react';
 import { productAtom } from './form';
-import {
-  useDeleteProductData,
-  useGetProductData,
-  useGetRecipeData,
-} from './store';
 import { Box } from '@mantine/core';
 import { IconX } from '@tabler/icons';
+import { useGetRecipeData } from './store';
 
 type ProductListProps = {
   tailwind: string;

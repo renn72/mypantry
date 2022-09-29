@@ -31,12 +31,16 @@ const ProductList = ({
           sx={(theme) => ({
             backgroundColor:
               theme.colorScheme === 'dark'
+              /* @ts-ignore */
                 ? theme.colors.dark[6]
+              /* @ts-ignore */
                 : theme.colors.gray[0],
             '&:hover': {
               backgroundColor:
                 theme.colorScheme === 'dark'
+              /* @ts-ignore */
                   ? theme.colors.dark[5]
+              /* @ts-ignore */
                   : theme.colors.gray[1],
             },
           })}

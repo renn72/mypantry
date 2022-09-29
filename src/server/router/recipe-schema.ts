@@ -1,13 +1,13 @@
 import { z } from 'zod';
 
 export const createRecipeSchema = z.object({
-  name: z.string(),
+  name: z.string().min(1),
   description: z.string(),
-  price: z.number(),
+  price: z.number().positive(),
   ingredients: z.array(
     z.object({
-      name: z.string(),
-      quantity: z.number(),
+      name: z.string().min(1),
+      quantity: z.number().positive(),
     })
   ),
 });

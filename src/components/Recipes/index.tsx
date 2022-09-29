@@ -8,7 +8,6 @@ import {
 } from '@tabler/icons';
 import {
   Button,
-  Modal,
   TextInput,
   Group,
   Box,
@@ -29,7 +28,7 @@ import {
 } from './store';
 import { useGetProductData } from '../Product/store';
 import RecipeList from './RecipeList';
-import { set } from 'zod';
+import RecipeForm from './form';
 
 const randomId = () => {
   return Math.random().toString();
@@ -226,106 +225,109 @@ const Recipes: React.FC = () => {
         </div>
         <Collapse in={recipeModelOpen} title="More Recipe">
           <Box sx={{ maxWidth: 700 }} mx="auto">
-            <form
-              onSubmit={form.onSubmit((values) => {
-                handleNewRecipeForm(values);
-              })}
-              className="flex flex-col gap-2"
-            >
-              <TextInput
-                aria-label="Name"
-                placeholder="Recipe Name"
-                {...form.getInputProps('name')}
-              />
-              <NumberInput
-                aria-label="Price"
-                min={0.01}
-                precision={2}
-                placeholder="10"
-                hideControls
-                icon={'$'}
-                {...form.getInputProps('price')}
-              />
-              <div className="flex flex-col w-full justify-center align-middle">
-                {fields.length > 0 ? (
+            {/*
+              <form
+                onSubmit={form.onSubmit((values) => {
+                  handleNewRecipeForm(values);
+                })}
+                className="flex flex-col gap-2"
+              >
+                <TextInput
+                  aria-label="Name"
+                  placeholder="Recipe Name"
+                  {...form.getInputProps('name')}
+                />
+                <NumberInput
+                  aria-label="Price"
+                  min={0.01}
+                  precision={2}
+                  placeholder="10"
+                  hideControls
+                  icon={'$'}
+                  {...form.getInputProps('price')}
+                />
+                <div className="flex flex-col w-full justify-center align-middle">
+                  {fields.length > 0 ? (
+                    <div className="grid grid-cols-8 gap-1 my-2">
+                      <Text weight={500} className="col-span-2">
+                        Name
+                      </Text>
+                      <Text weight={500}>Size</Text>
+                      <Text weight={500}>Unit Cost</Text>
+                      <Text weight={500} className="col-span-2">
+                        Quantity
+                      </Text>
+                      <Text weight={500} align="center">
+                        Total
+                      </Text>
+                    </div>
+                  ) : (
+                    <Text color="dimmed" align="center">
+                      No one here...
+                    </Text>
+                  )}
+                  {fields}
                   <div className="grid grid-cols-8 gap-1 my-2">
-                    <Text weight={500} className="col-span-2">
-                      Name
-                    </Text>
-                    <Text weight={500}>Size</Text>
-                    <Text weight={500}>Unit Cost</Text>
-                    <Text weight={500} className="col-span-2">
-                      Quantity
-                    </Text>
-                    <Text weight={500} align="center">
+                    <Text align="center" className="col-start-7">
                       Total
                     </Text>
+                    <Text align="center" className="">
+                      COGS
+                    </Text>
                   </div>
-                ) : (
-                  <Text color="dimmed" align="center">
-                    No one here...
-                  </Text>
-                )}
-                {fields}
-                <div className="grid grid-cols-8 gap-1 my-2">
-                  <Text align="center" className="col-start-7">
-                    Total
-                  </Text>
-                  <Text align="center" className="">
-                    COGS
-                  </Text>
+                  <div className="grid grid-cols-8 gap-1">
+                    <Text className="col-start-7" align="center">
+                      {form.values.ingredients
+                        .reduce(
+                          (acc, item) => acc + (item.cost ? item.cost : 0),
+                          0
+                        )
+                        .toFixed(2)}
+                    </Text>
+                    <Text className="" align="center">
+                      {(
+                        (form.values.ingredients.reduce(
+                          (acc, item) => acc + (item.cost ? item.cost : 0),
+                          0
+                        ) /
+                          form.values.price) *
+                          100 || 0
+                      ).toFixed(0)}
+                      %
+                    </Text>
+                  </div>
+                  <ActionIcon
+                    className="self-center"
+                    color="blue"
+                    size={48}
+                    onClick={() =>
+                      form.insertListItem('ingredients', {
+                        name: '',
+                        quantity: 0,
+                        key: randomId(),
+                      })
+                    }
+                  >
+                    <IconCirclePlus size={32} />
+                  </ActionIcon>
                 </div>
-                <div className="grid grid-cols-8 gap-1">
-                  <Text className="col-start-7" align="center">
-                    {form.values.ingredients
-                      .reduce(
-                        (acc, item) => acc + (item.cost ? item.cost : 0),
-                        0
-                      )
-                      .toFixed(2)}
-                  </Text>
-                  <Text className="" align="center">
-                    {(
-                      (form.values.ingredients.reduce(
-                        (acc, item) => acc + (item.cost ? item.cost : 0),
-                        0
-                      ) /
-                        form.values.price) *
-                        100 || 0
-                    ).toFixed(0)}
-                    %
-                  </Text>
-                </div>
-                <ActionIcon
-                  className="self-center"
-                  color="blue"
-                  size={48}
-                  onClick={() =>
-                    form.insertListItem('ingredients', {
-                      name: '',
-                      quantity: 0,
-                      key: randomId(),
-                    })
-                  }
-                >
-                  <IconCirclePlus size={32} />
-                </ActionIcon>
-              </div>
-              <Textarea
-                aria-label="Description"
-                placeholder="Recipe description"
-                autosize
-                minRows={2}
-                {...form.getInputProps('description')}
-              />
+                <Textarea
+                  aria-label="Description"
+                  placeholder="Recipe description"
+                  autosize
+                  minRows={2}
+                  {...form.getInputProps('description')}
+                />
 
-              <Group position="right" mt="md">
-                <Button type="submit">Submit</Button>
-                <Button variant="subtle" onClick={() => form.reset()}>
-                  Clear
-                </Button>
-              </Group>
-            </form>
+                <Group position="right" mt="md">
+                  <Button type="submit">Submit</Button>
+                  <Button variant="subtle" onClick={() => form.reset()}>
+                    Clear
+                  </Button>
+                </Group>
+              </form>
+            */}
+            <RecipeForm />
           </Box>
         </Collapse>
       </div>
